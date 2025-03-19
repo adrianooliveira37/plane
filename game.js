@@ -1,7 +1,7 @@
-const config = { 
+const config = {
     type: Phaser.AUTO,
     scale: {
-        mode: Phaser.Scale.RESIZE, // Ajusta o jogo automaticamente
+        mode: Phaser.Scale.RESIZE,
         autoCenter: Phaser.Scale.CENTER_BOTH
     },
     physics: {
@@ -21,6 +21,7 @@ let plane, bullets, clouds, questionText;
 let question = {};
 let gameOver = false;
 let shotFired = false;
+let joystick; // Variável para o joystick
 
 function preload() {
     this.load.image('plane', 'plane.png');
@@ -29,17 +30,24 @@ function preload() {
 }
 
 function create() {
-    this.cameras.main.setBackgroundColor('#5DADE2'); // Fundo azul mais vibrante
+    this.cameras.main.setBackgroundColor('#5DADE2');
     
     plane = this.physics.add.sprite(100, this.scale.height / 2, 'plane').setScale(0.2);
     plane.setCollideWorldBounds(true);
     bullets = this.physics.add.group();
     clouds = this.physics.add.group();
     
-    this.input.keyboard.on('keydown-UP', () => plane.setVelocityY(-200));
-    this.input.keyboard.on('keydown-DOWN', () => plane.setVelocityY(200));
+    // Configuração do joystick
+    joystick = this.plugins.get('virtualJoystick').add(this, {
+        x: 100,
+        y: this.scale.height - 100,
+        radius: 50,
+        base: this.add.circle(0, 0, 50, 0x888888, 0.5),
+        thumb: this.add.circle(0, 0, 25, 0xcccccc, 0.8),
+        enable: true
+    });
+
     this.input.keyboard.on('keydown-SPACE', shoot, this);
-    
     this.input.on('pointerdown', handleTouch, this);
     
     questionText = this.add.text(this.scale.width / 2, 30, '', { 
@@ -53,16 +61,10 @@ function create() {
     
     generateQuestion.call(this);
 
-    this.scale.on('resize', resizeGame, this); // Ajusta ao redimensionar
+    this.scale.on('resize', resizeGame, this);
 }
 
 function handleTouch(pointer) {
-    if (pointer.y < this.scale.height / 2) {
-        plane.setVelocityY(-200);
-    } else {
-        plane.setVelocityY(200);
-    }
-
     if (pointer.getDuration() < 200) {
         shoot();
     }
@@ -108,6 +110,12 @@ function generateQuestion() {
 function update() {
     if (gameOver) return;
     
+    // Movimentação do avião com o joystick
+    if (joystick && joystick.enable) {
+        const force = 200; // Força de movimento
+        plane.setVelocityY(joystick.forceY * force);
+    }
+
     clouds.children.each((cloud) => {
         if (cloud.x < 0) {
             gameOver = true;
@@ -163,5 +171,11 @@ function resizeGame(gameSize) {
     
     if (questionText) {
         questionText.setX(width / 2);
+    }
+
+    // Reposicionar o joystick ao redimensionar
+    if (joystick) {
+        joystick.base.setPosition(100, height - 100);
+        joystick.thumb.setPosition(100, height - 100);
     }
 }
