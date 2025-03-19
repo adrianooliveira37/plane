@@ -8,8 +8,6 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <!-- Phaser -->
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
-    <!-- Virtual Joystick -->
-    <script src="https://cdn.jsdelivr.net/npm/phaser3-virtual-joystick@1.0.0/dist/phaser3-virtual-joystick.min.js"></script>
     <style>
         body {
             background-color: #5DADE2;
@@ -40,11 +38,40 @@
         .hidden {
             display: none;
         }
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+        }
+        .control-button {
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            text-align: center;
+            line-height: 60px;
+            border-radius: 50%;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            outline: none;
+            cursor: pointer;
+        }
+        .control-button:active {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
     </style>
 </head>
 <body>
     <div id="game-container">
         <button id="start-button" class="btn btn-primary">Iniciar Jogo</button>
+        <div class="controls hidden" id="controls">
+            <button id="btn-up" class="control-button">▲</button>
+            <button id="btn-down" class="control-button">▼</button>
+            <button id="btn-shoot" class="control-button">🔥</button>
+        </div>
     </div>
 
     <!-- Bootstrap JS e dependências -->
