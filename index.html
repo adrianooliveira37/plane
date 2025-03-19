@@ -4,52 +4,49 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jogo do Avião</title>
-    <!-- Carregar Bootstrap CSS a partir do CDN -->
+    <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Carregar Phaser a partir do CDN -->
+    <!-- Phaser -->
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
+    <!-- Virtual Joystick -->
+    <script src="https://cdn.jsdelivr.net/npm/phaser3-virtual-joystick@1.0.0/dist/phaser3-virtual-joystick.min.js"></script>
     <style>
-        /* Estilos personalizados */
         body {
             background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
         }
-        .game-container {
-            margin-top: 20px;
-            text-align: center;
+        #game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
         }
-        .game-title {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: #343a40;
-            margin-bottom: 20px;
+        #start-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            padding: 10px 20px;
+            z-index: 10;
         }
-        .game-instructions {
-            font-size: 1.2rem;
-            color: #6c757d;
-            margin-bottom: 30px;
+        .hidden {
+            display: none;
         }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/phaser3-virtual-joystick@1.0.0/dist/phaser3-virtual-joystick.min.js"></script>
 </head>
 <body>
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="game-container">
-                    <h1 class="game-title">Jogo do Avião</h1>
-                    <p class="game-instructions">Use as setas do teclado para mover o avião e evite os obstáculos!</p>
-                    <div id="game-canvas"></div>
-                </div>
-            </div>
-        </div>
+    <div id="game-container">
+        <button id="start-button" class="btn btn-primary">Start</button>
     </div>
 
-    <!-- Carregar Bootstrap JS e dependências -->
+    <!-- Bootstrap JS e dependências -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-    <!-- Seu script do jogo -->
+    <!-- Script do jogo -->
     <script src="game.js"></script>
 </body>
 </html>
