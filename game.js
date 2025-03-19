@@ -1,5 +1,6 @@
 const config = {
     type: Phaser.AUTO,
+    parent: 'game-container',
     scale: {
         mode: Phaser.Scale.RESIZE,
         autoCenter: Phaser.Scale.CENTER_BOTH
@@ -21,7 +22,8 @@ let plane, bullets, clouds, questionText;
 let question = {};
 let gameOver = false;
 let shotFired = false;
-let joystick; // Variável para o joystick
+let joystick;
+let startButton;
 
 function preload() {
     this.load.image('plane', 'plane.png');
@@ -30,10 +32,25 @@ function preload() {
 }
 
 function create() {
+    // Configuração do botão de Start
+    startButton = document.getElementById('start-button');
+    startButton.addEventListener('click', () => {
+        startButton.classList.add('hidden'); // Esconde o botão
+        startGame.call(this); // Inicia o jogo
+    });
+
+    // Configuração do joystick (será criado após o início do jogo)
+    joystick = null;
+}
+
+function startGame() {
     this.cameras.main.setBackgroundColor('#5DADE2');
     
+    // Criação do avião
     plane = this.physics.add.sprite(100, this.scale.height / 2, 'plane').setScale(0.2);
     plane.setCollideWorldBounds(true);
+    
+    // Criação dos grupos de balas e nuvens
     bullets = this.physics.add.group();
     clouds = this.physics.add.group();
     
@@ -47,9 +64,7 @@ function create() {
         enable: true
     });
 
-    this.input.keyboard.on('keydown-SPACE', shoot, this);
-    this.input.on('pointerdown', handleTouch, this);
-    
+    // Configuração do texto da pergunta
     questionText = this.add.text(this.scale.width / 2, 30, '', { 
         fontSize: '32px', 
         fill: '#fff', 
@@ -59,15 +74,39 @@ function create() {
         align: 'center'
     }).setOrigin(0.5);
     
+    // Gera a primeira pergunta
     generateQuestion.call(this);
 
+    // Configuração do redimensionamento
     this.scale.on('resize', resizeGame, this);
 }
 
-function handleTouch(pointer) {
-    if (pointer.getDuration() < 200) {
-        shoot();
-    }
+function update() {
+    if (gameOver || !joystick) return;
+    
+    // Movimentação do avião com o joystick
+    const force = 200; // Força de movimento
+    plane.setVelocityY(joystick.forceY * force);
+
+    // Verifica colisões e movimentação das nuvens
+    clouds.children.each((cloud) => {
+        if (cloud.x < 0) {
+            gameOver = true;
+            showGameOver.call(this);
+        }
+    });
+
+    bullets.children.each((bullet) => {
+        if (bullet.x > this.scale.width) bullet.destroy();
+    });
+
+    this.physics.overlap(bullets, clouds, hitCloud, null, this);
+    
+    clouds.children.each((cloud) => {
+        if (cloud.text) {
+            cloud.text.setPosition(cloud.x, cloud.y);
+        }
+    });
 }
 
 function shoot() {
@@ -107,35 +146,6 @@ function generateQuestion() {
     shotFired = false;
 }
 
-function update() {
-    if (gameOver) return;
-    
-    // Movimentação do avião com o joystick
-    if (joystick && joystick.enable) {
-        const force = 200; // Força de movimento
-        plane.setVelocityY(joystick.forceY * force);
-    }
-
-    clouds.children.each((cloud) => {
-        if (cloud.x < 0) {
-            gameOver = true;
-            showGameOver.call(this);
-        }
-    });
-
-    bullets.children.each((bullet) => {
-        if (bullet.x > this.scale.width) bullet.destroy();
-    });
-
-    this.physics.overlap(bullets, clouds, hitCloud, null, this);
-    
-    clouds.children.each((cloud) => {
-        if (cloud.text) {
-            cloud.text.setPosition(cloud.x, cloud.y);
-        }
-    });
-}
-
 function hitCloud(bullet, cloud) {
     bullet.destroy();
     if (cloud.answer === question.correctAnswer) {
@@ -173,7 +183,6 @@ function resizeGame(gameSize) {
         questionText.setX(width / 2);
     }
 
-    // Reposicionar o joystick ao redimensionar
     if (joystick) {
         joystick.base.setPosition(100, height - 100);
         joystick.thumb.setPosition(100, height - 100);
